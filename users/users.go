@@ -132,7 +132,10 @@ func export(c *cli.Context) error {
 	// create a paging structure.
 	paging, _ := res.Paging(&session)
 	noMore := false
+	pageNumber := 1
 	for !noMore {
+		log.Infof("Process page %d", pageNumber)
+		pageNumber++
 		convResult := ConversationResult{}
 		err = paging.Decode(&convResult)
 		if err != nil {
@@ -143,16 +146,17 @@ func export(c *cli.Context) error {
 
 		var senders []User
 		for _, conversation := range convResult.Data {
+			convLog := log.WithField("conversationId", conversation.ID)
 			userSession := fb.Session{}
 			userSession.SetAccessToken(accessToken)
 			res, err = userSession.Get(fmt.Sprintf("/%s", conversation.ID), fb.Params{"fields": "participants"})
 			if err != nil {
-				return errors.Wrap(err, "fb.GET /conversationId")
+				convLog.Warn("fb.GET /conversationId: ", err)
 			}
 			result := ParticipantsResult{}
 			err = res.Decode(&result)
 			if err != nil {
-				return errors.Wrap(err, "decode participants")
+				convLog.Warn("decode participants: ", err)
 			}
 			for _, user := range result.Participants["data"] {
 				if user.ID == page.ID { // Ignore page id itself
@@ -160,7 +164,7 @@ func export(c *cli.Context) error {
 				}
 				user.LastSend, err = ToSqlTime(conversation.UpdatedTime)
 				if err != nil {
-					log.Warn("Error when converting time: ", err)
+					convLog.Warn("converting time: ", err)
 					user.LastSend = time.Now().Format("2006-01-02 03:04:05")
 				}
 				senders = append(senders, user)
@@ -169,18 +173,18 @@ func export(c *cli.Context) error {
 		if len(senders) > 0 {
 			err = tmpl.Execute(output, senders)
 			if err != nil {
-				return errors.Wrap(err, "render template to output")
+				log.Warn("render template to output: ", err)
 			}
 		}
 
 		noMore, _ = paging.Next()
 	}
-
+	log.Info("DONE")
 	return nil
 }
 
 func ToSqlTime(fbTime string) (string, error) {
-	t, err := time.Parse("2006-01-02T03:04:05-0700", fbTime)
+	t, err := time.Parse("2006-01-02T15:04:05-0700", fbTime)
 	if err != nil {
 		return "", err
 	}

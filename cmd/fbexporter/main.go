@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	initLogger(log.StandardLogger(), "info")
 	app := cli.NewApp()
 	app.Usage = "Tool for export various data from FB page"
 	app.Version = "1.0.0"
@@ -24,5 +25,20 @@ func main() {
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Error("Errors: ", err)
+	}
+}
+
+func initLogger(logger *log.Logger, logLevel string) {
+	formatter := new(log.TextFormatter)
+	formatter.FullTimestamp = true
+	formatter.TimestampFormat = "2006-01-02 15:04:05"
+	logger.Formatter = formatter
+	switch logLevel {
+	case "debug":
+		logger.Level = log.DebugLevel
+	case "error":
+		logger.Level = log.ErrorLevel
+	default:
+		logger.Level = log.InfoLevel
 	}
 }

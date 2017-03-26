@@ -1,0 +1,2 @@
+INSERT IGNORE INTO senders (sender_id, full_name, gender, last_send) VALUES
+{{range $index, $user := .}}{{if gt $index 0}}, {{end}}('{{$user.ID}}', '{{$user.Name}}', '{{$user.Gender}}', CONVERT_TZ('{{$user.LastSend}}', '+00:00', 'SYSTEM')){{end}};

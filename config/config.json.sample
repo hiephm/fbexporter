@@ -1,0 +1,7 @@
+{
+  "AppId": "app id here, required only if using long lived token (--longlived)",
+  "AppSecret": "app secret here, required only if using long lived token (--longlived)",
+  "PageId": "page id here, required",
+  "ShortLivedToken": "short lived token here, required",
+  "LongLivedToken": "not required, long lived token will be automatically get if specify --longlived flag"
+}

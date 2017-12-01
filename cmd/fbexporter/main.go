@@ -5,7 +5,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/hiephm/fbexporter/commands"
-	_ "github.com/hiephm/fbexporter/users"
+	_ "github.com/hiephm/fbexporter/conversations"
 	"github.com/urfave/cli"
 )
 

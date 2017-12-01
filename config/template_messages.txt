@@ -1,0 +1,3 @@
+{{$conversationID := .conversation_id}}
+INSERT IGNORE INTO messages (conversation_id, from_name, text, created_time) VALUES
+{{range $index, $message := .messages}}{{if gt $index 0}}, {{end}}('{{$conversationID}}', '{{$message.From.Name}}', '{{$message.Text}}', CONVERT_TZ('{{$message.CreatedTime}}', '+00:00', 'SYSTEM')){{end}};
